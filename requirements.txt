@@ -3,3 +3,4 @@ contentful
 contentful_management
 flask
 requests
+uwsgi
