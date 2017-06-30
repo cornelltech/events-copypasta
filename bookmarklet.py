@@ -10,7 +10,7 @@ from os.path import join, dirname
 from dotenv import load_dotenv
 
 # bookmarklet contents:
-# javascript:location.href='http://127.0.0.1:5000/add/?url='+location.href;
+# javascript:location.href='http://ec2-34-207-110-254.compute-1.amazonaws.com/add?url='+location.href;
 
 try:
     dotenv_path = join(dirname(__file__), '.env')

@@ -1,0 +1,15 @@
+# /etc/systemd/system/bookmarklet.service
+
+[Unit]
+Description=uWSGI instance to serve bookmarklet
+After=network.target
+
+[Service]
+User=ubuntu
+Group=www-data
+WorkingDirectory=/home/ubuntu/events
+Environment="PATH=/home/ubuntu/events/env/bin"
+ExecStart=/home/ubuntu/events/env/bin/uwsgi --ini bookmarklet.ini
+
+[Install]
+WantedBy=multi-user.target

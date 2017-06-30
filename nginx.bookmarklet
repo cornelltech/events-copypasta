@@ -1,0 +1,11 @@
+# /etc/nginx/sites-available/bookmarklet
+
+server {
+        listen 80;
+        server_name 34.207.110.254;
+
+        location / {
+                include uwsgi_params;
+                uwsgi_pass unix:/home/ubuntu/events/bookmarklet.sock;
+        }
+}

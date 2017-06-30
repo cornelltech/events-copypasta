@@ -47,4 +47,5 @@ if __name__ == '__main__':
                                     startTime='2017-06-27T19:00:00-04:00',
                                     description='it is friday let\'s party!')
 
-    send_event_to_contentful(entry_attributes)
+    # send_event_to_contentful(entry_attributes)
+    print entry_attributes
