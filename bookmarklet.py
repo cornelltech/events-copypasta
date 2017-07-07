@@ -56,13 +56,24 @@ def add():
     )
     title = response.json()['name']['text']
     description = response.json()['description']['text']
-    startTime = response.json()['start']['local']
+    start_time = response.json()['start']['local']
+    end_time = response.json()['end']['local']
+
     external_url = url
 
+    # location data
+    lat = float(response.json()['venue']['address']['latitude'])
+    lon = float(response.json()['venue']['address']['longitude'])
+    name = response.json()['venue']['name']
+    room = response.json()['venue']['address']['localized_address_display']
+    location_id = build_contentful_data.find_location_id(lat, lon, name, room)
+
     event_attributes = build_contentful_data.build_event(title,
-                                        startTime=startTime,
+                                        start_time=start_time,
+                                        end_time=end_time,
                                         description=description,
-                                        external_url=external_url)
+                                        external_url=external_url,
+                                        location_id=location_id)
     build_contentful_data.send_event_to_contentful(event_attributes)
     return 'Added to contentful!'
 

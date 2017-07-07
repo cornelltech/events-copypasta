@@ -26,8 +26,6 @@ def get_locations():
 # creates new location if none exists yet
 def find_location_id(lat, lon, name, room):
     locations = get_locations()
-    print 'lat=', lat, 'lon=', lon, 'name=', name,
-    # pdb.set_trace()
     for location in locations:
         if location.address.lat == lat:
             if location.address.lon == lon:
@@ -36,6 +34,7 @@ def find_location_id(lat, lon, name, room):
                         return location.sys['id']
     # if it doesn't exist, create it
     new_location = build_location(lat, lon, name, room)
+    print new_location
     loc = send_to_contentful(new_location)
     loc.publish()
     return loc.sys['id']
