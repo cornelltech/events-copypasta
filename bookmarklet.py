@@ -46,7 +46,7 @@ def add():
     event_id = get_event_id(url)
     if event_id is None:
         return 'This isn\'t an eventbrite page, so we can\'t add it.'
-    api_url = urljoin(EVENTBRITE_API_BASE, event_id)
+    api_url = EVENTBRITE_API_BASE + event_id + '?expand=venue'
     response = requests.get(
         api_url,
         headers = {
