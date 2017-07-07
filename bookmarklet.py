@@ -74,7 +74,7 @@ def add():
                                         description=description,
                                         external_url=external_url,
                                         location_id=location_id)
-    build_contentful_data.send_event_to_contentful(event_attributes)
+    build_contentful_data.send_to_contentful(event_attributes)
     return 'Added to contentful!'
 
 
