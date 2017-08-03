@@ -1,5 +1,6 @@
 import build_contentful_data
-from flask import Flask, request
+from flask import Flask, render_template, request, session
+from flask_session import Session
 import os
 
 import requests
@@ -21,8 +22,12 @@ except Exception as e:
 EVENTBRITE_OAUTH_TOKEN = os.environ.get('EVENTBRITE_OAUTH_TOKEN', None)
 
 EVENTBRITE_API_BASE = 'https://www.eventbriteapi.com/v3/events/'
+EVENTBRITE_URL_BASE = 'https://www.eventbrite.com/e/'
 
 app = Flask(__name__)
+app.secret_key = 'super secret key'
+app.config['SESSION_TYPE'] = 'filesystem'
+Session(app)
 
 def get_event_id(url):
     url_components = urlparse(url)
@@ -46,6 +51,14 @@ def add():
     event_id = get_event_id(url)
     if event_id is None:
         return 'This isn\'t an eventbrite page, so we can\'t add it.'
+    session['event_id'] = event_id
+
+    return render_template('add.html',
+                            categories=build_contentful_data.get_categories())
+
+@app.route("/tag", methods=['GET'])
+def added():
+    event_id = session['event_id']
     api_url = EVENTBRITE_API_BASE + event_id + '?expand=venue'
     response = requests.get(
         api_url,
@@ -59,7 +72,7 @@ def add():
     start_time = response.json()['start']['local']
     end_time = response.json()['end']['local']
 
-    external_url = url
+    external_url = EVENTBRITE_URL_BASE + event_id
 
     # location data
     lat = float(response.json()['venue']['address']['latitude'])
@@ -68,16 +81,28 @@ def add():
     room = response.json()['venue']['address']['localized_address_display']
     location_id = build_contentful_data.find_location_id(lat, lon, name, room)
 
+    tags = request.args.get('tags', None)
+    if tags:
+        tags = tags.split(',')
+
     event_attributes = build_contentful_data.build_event(title,
-                                        start_time=start_time,
-                                        end_time=end_time,
-                                        description=description,
-                                        external_url=external_url,
-                                        location_id=location_id)
+                                    start_time=start_time,
+                                    end_time=end_time,
+                                    description=description,
+                                    external_url=external_url,
+                                    location_id=location_id,
+                                    category=request.args.get('category', None),
+                                    tags=tags)
+
     build_contentful_data.send_to_contentful(event_attributes)
+    # return session['event_id']
+    # "add tags now plz"
     return 'Added to contentful!'
+    # return tags
 
 
 if __name__ == '__main__':
+    # session.init_app(app)
+
     app.debug = True
     app.run()
