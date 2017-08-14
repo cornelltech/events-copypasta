@@ -21,8 +21,12 @@ MGMT_TOKEN = os.environ.get('MANAGEMENT_TOKEN', None)
 ACCESS_TOKEN = os.environ.get('ACCESS_TOKEN', None)
 
 def get_locations():
-    client = contentful.Client(SPACE_ID, ACCESS_TOKEN)
-    return client.entries({'content_type': 'location'}).items
+    delivery_client = contentful.Client(SPACE_ID, ACCESS_TOKEN)
+    return delivery_client.entries({'content_type': 'location'}).items
+
+def get_tags():
+    delivery_client = contentful.Client(SPACE_ID, ACCESS_TOKEN)
+    return delivery_client.entries({'content_type': 'tag'}).items
 
 # creates new location if none exists yet
 def find_location_id(lat, lon, name, room):
@@ -41,21 +45,15 @@ def find_location_id(lat, lon, name, room):
     return loc.sys['id']
 
 def find_tag_id(name):
-    client = contentful.Client(SPACE_ID, ACCESS_TOKEN)
-    tags = client.entries({'content_type': 'tag'}).items
-    for tag in tags:
-        print tag.title == name
-        print '{}|{}'.format(tag.title, name)
-        if tag.title == name:
-            print 'found!', tag.sys['id']
-            # print tag.title, tag.sys['id']
-            # pdb.set_trace()
-            return tag.sys['id']
-    new_tag = build_tag(name)
-    c_tag = send_to_contentful(new_tag)
-    # c_tag.publish()
-    return c_tag.sys['id']
-
+    delivery_client = contentful.Client(SPACE_ID, ACCESS_TOKEN)
+    tag_results = delivery_client.entries({'content_type': 'tag',
+                                            'fields.title': name})
+    if tag_results:
+        return tag_results[0].id
+    else:
+        new_tag = build_tag(name)
+        new_tag = send_to_contentful(new_tag)
+        return new_tag.id
 
 def build_field(name, contents):
     if contents:
@@ -92,12 +90,13 @@ def build_event(title, start_time=None, end_time=None, description=None,
     fields_data.append(build_field('category', category))
     fields_data.append({'locationObject': build_location_link(location_id)})
 
-    # append list of tags
-    tlist = []
+    tag_links_list = []
     for tag in tags:
         tag_link = build_tag_link(find_tag_id(tag.strip()))
-        tlist.append(tag_link)
-    fields_data.append(build_field('tags', tlist))
+        tag_links_list.append(tag_link)
+
+    if tag_links_list:
+        fields_data.append(build_field('tags', tag_links_list))
 
     # construct json for all the fields
     fields = {}
@@ -111,30 +110,27 @@ def build_tag(title):
     return {'content_type_id': 'tag', 'fields': fields}
 
 def send_to_contentful(attributes):
-    client = contentful_management.Client(MGMT_TOKEN)
-    new_entry = client.entries(SPACE_ID).create(None, attributes)
-    sleep(2)
+    mgmt_client = contentful_management.Client(MGMT_TOKEN)
+    new_entry = mgmt_client.entries(SPACE_ID).create(None, attributes)
     new_entry.publish()
-    sleep(2)
     return new_entry
-    # entry = client.entries(SPACE_ID).find(new_entry.sys['id'])
-    # entry.publish()
-    # return entry
 
 def get_categories():
-    categories = ['talk',
-                    'conference',
-                    'recruitment',
-                    'showcase',
-                    'discussion',
-                    'hackathon']
-    return categories
-    # client = contentful_management.Client(MGMT_TOKEN)
-    # types = client.content_types(SPACE_ID)
-    # event = types.find('event')
-    # for f in event.fields:
-    #     if f.id == 'category':
-    #         return f.validations[0].raw['in']
+    # categories = ['talk',
+    #                 'conference',
+    #                 'recruitment',
+    #                 'showcase',
+    #                 'discussion',
+    #                 'hackathon']
+    # return categories
+
+    # this is sort of hacky, but there isn't a clean way to get them out
+    mgmt_client = contentful_management.Client(MGMT_TOKEN)
+    types = mgmt_client.content_types(SPACE_ID)
+    event = types.find('event')
+    for f in event.fields:
+        if f.id == 'category':
+            return f.validations[0].raw['in']
 
 if __name__ == '__main__':
     # lat, lon, name, room
@@ -143,7 +139,7 @@ if __name__ == '__main__':
     name = 'The Foundry'
     room = '#802'
     #
-    tags = 'foo, bar, baz'
+    tags = 'july, august, september'
     if tags:
         tags = tags.split(',')
     entry_attributes = build_event('party friday',
@@ -152,10 +148,4 @@ if __name__ == '__main__':
                                     location_id=find_location_id(lat, lon, name, room),
                                     category='talk', tags=tags)
 
-    # print entry_attributes
-    # print get_categories()
-
-    # find_tag_id('baz')
-    # pdb.set_trace()
     entry = send_to_contentful(entry_attributes)
-    # entry.publish()

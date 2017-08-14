@@ -10,6 +10,8 @@ from urlparse import urlparse, urljoin
 from os.path import join, dirname
 from dotenv import load_dotenv
 
+import pdb
+
 # bookmarklet contents:
 # javascript:location.href='http://ec2-34-207-110-254.compute-1.amazonaws.com/add?url='+location.href;
 
@@ -54,7 +56,8 @@ def add():
     session['event_id'] = event_id
 
     return render_template('add.html',
-                            categories=build_contentful_data.get_categories())
+                            categories=build_contentful_data.get_categories(),
+                            tags=build_contentful_data.get_tags())
 
 @app.route("/tag", methods=['GET'])
 def added():
@@ -81,10 +84,7 @@ def added():
     room = response.json()['venue']['address']['localized_address_display']
     location_id = build_contentful_data.find_location_id(lat, lon, name, room)
 
-    tags = request.args.get('tags', None)
-    if tags:
-        tags = tags.split(',')
-
+    tags = request.args.getlist('tag')
     event_attributes = build_contentful_data.build_event(title,
                                     start_time=start_time,
                                     end_time=end_time,
@@ -95,14 +95,9 @@ def added():
                                     tags=tags)
 
     build_contentful_data.send_to_contentful(event_attributes)
-    # return session['event_id']
-    # "add tags now plz"
     return 'Added to contentful!'
-    # return tags
 
 
 if __name__ == '__main__':
-    # session.init_app(app)
-
     app.debug = True
     app.run()
