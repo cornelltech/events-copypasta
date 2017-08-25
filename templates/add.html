@@ -1,0 +1,25 @@
+<!-- base.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>categories &amp; tags for your event</title>
+  <!-- Bootstrap core CSS -->
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+  <link href="{{url_for('static', filename='style.css')}}" rel="stylesheet">
+</head>
+
+<body>
+  <h1>Choose categories &amp; tags for your event.</h1>
+  <form action="/tag" method="get">
+    Category: <br> {% for cat in categories %}
+    <input type="radio" name="category" value={{cat}}>{{ cat }} <br>{% endfor %}
+    <br> Tags: <br> {% for tag in tags %}
+    <input type="checkbox" name="tag" value={{tag.title}}>{{ tag.title }}
+    <br> {% endfor %}
+    <input type="submit" />
+  </form>
+</body>
+
+</html>
