@@ -1,4 +1,5 @@
 import build_contentful_data
+import eventbrite_saver
 from flask import Flask, render_template, request, session
 from flask_session import Session
 import os
@@ -31,15 +32,7 @@ app.secret_key = 'super secret key'
 app.config['SESSION_TYPE'] = 'filesystem'
 Session(app)
 
-def get_event_id(url):
-    url_components = urlparse(url)
-    if not url_components.netloc == 'www.eventbrite.com':
-        return None
-
-    # hackily parsing eventbrite urls
-    event_name = url_components.path.split('/')[-1]
-    event_id = event_name.split('-')[-1]
-    return event_id
+URL_HANDLERS = {'www.eventbrite.com' : eventbrite_saver.EventbriteSaver}
 
 @app.route("/")
 def hello():
@@ -50,10 +43,15 @@ def add():
     url = request.args.get('url', None)
     if url is None:
         return 'You didn\'t pass in a url param!'
-    event_id = get_event_id(url)
-    if event_id is None:
+
+    url_details = urlparse(url)
+    base_url = url_details.netloc
+    if base_url in URL_HANDLERS:
+        handler = URL_HANDLERS[base_url]
+        data = handler(url)
+        session['data'] = data
+    else:
         return 'This isn\'t an eventbrite page, so we can\'t add it.'
-    session['event_id'] = event_id
 
     return render_template('add.html',
                             categories=build_contentful_data.get_categories(),
@@ -61,37 +59,16 @@ def add():
 
 @app.route("/tag", methods=['GET'])
 def added():
-    event_id = session['event_id']
-    api_url = EVENTBRITE_API_BASE + event_id + '?expand=venue'
-    response = requests.get(
-        api_url,
-        headers = {
-            "Authorization": "Bearer %s" % EVENTBRITE_OAUTH_TOKEN,
-        },
-        verify = True,
-    )
-    title = response.json()['name']['text']
-    description = response.json()['description']['text']
-    start_time = response.json()['start']['local']
-    end_time = response.json()['end']['local']
-
-    external_url = EVENTBRITE_URL_BASE + event_id
-
-    # location data
-    lat = float(response.json()['venue']['address']['latitude'])
-    lon = float(response.json()['venue']['address']['longitude'])
-    name = response.json()['venue']['name']
-    room = response.json()['venue']['address']['localized_address_display']
-    location_id = build_contentful_data.find_location_id(lat, lon, name, room)
-
     tags = request.args.getlist('tag')
-    event_attributes = build_contentful_data.build_event(title,
-                                    start_time=start_time,
-                                    end_time=end_time,
-                                    description=description,
-                                    external_url=external_url,
-                                    location_id=location_id,
-                                    category=request.args.get('category', None),
+    category=request.args.get('category', None)
+    data = session['data']
+    event_attributes = build_contentful_data.build_event(data.get_title(),
+                                    start_time=data.get_start_time(),
+                                    end_time=data.get_end_time(),
+                                    description=data.get_description(),
+                                    external_url=data.get_url(),
+                                    location_id=data.get_location(),
+                                    category=category,
                                     tags=tags)
 
     build_contentful_data.send_to_contentful(event_attributes)
