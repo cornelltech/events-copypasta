@@ -1,10 +1,11 @@
 import build_contentful_data
-import eventbrite_saver
 from flask import Flask, render_template, request, session
 from flask_session import Session
 import os
-
 import requests
+
+import eventbrite_saver
+import localist_saver
 
 from urlparse import urlparse, urljoin
 
@@ -32,7 +33,8 @@ app.secret_key = 'super secret key'
 app.config['SESSION_TYPE'] = 'filesystem'
 Session(app)
 
-URL_HANDLERS = {'www.eventbrite.com' : eventbrite_saver.EventbriteSaver}
+URL_HANDLERS = {'www.eventbrite.com' : eventbrite_saver.EventbriteSaver,
+                'events.cornell.edu' : localist_saver.LocalistSaver}
 
 @app.route("/")
 def hello():
@@ -51,7 +53,7 @@ def add():
         data = handler(url)
         session['data'] = data
     else:
-        return 'This isn\'t an eventbrite page, so we can\'t add it.'
+        return 'This isn\'t a supported page, so we can\'t add it.'
 
     return render_template('add.html',
                             categories=build_contentful_data.get_categories(),
