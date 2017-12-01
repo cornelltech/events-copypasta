@@ -1,5 +1,4 @@
 import build_contentful_data
-import eventsaver
 import json
 import requests
 
@@ -9,13 +8,13 @@ from bs4 import BeautifulSoup
 
 CORNELL_API_BASE = 'http://events.cornell.edu/api/2/events/'
 
-class LocalistSaver(eventsaver.EventSaver):
+class LocalistSaver():
 
     def __init__(self, url):
-        super(LocalistSaver, self).__init__(url)
-        self.save_localist_data()
+        self.url = url
+        self.save_data()
 
-    def save_localist_data(self):
+    def save_data(self):
         # find event id
         result = requests.get(self.url)
         soup = BeautifulSoup(result.content, "lxml")
@@ -47,32 +46,6 @@ class LocalistSaver(eventsaver.EventSaver):
         else:
             self.location_id = ''
 
-    def get_title(self):
-        return self.title
-
-    def get_start_time(self):
-        return self.start_time
-
-    def get_end_time(self):
-        return self.end_time
-
-    def get_description(self):
-        return self.description
-
-    def get_location(self):
-        return self.location_id
-
-    def print_info(self):
-        print self.get_start_time()
-        print self.get_end_time()
-        print self.get_url()
-        print self.get_description()
-        print self.get_location()
-
 if __name__ == '__main__':
     url = 'http://events.cornell.edu/event/island_immersion_diving_into_discovery_at_shoals_marine_lab'
     esaver = LocalistSaver(url)
-    print esaver.get_start_time()
-    print esaver.get_end_time()
-    print esaver.get_url()
-    print esaver.get_description()

@@ -64,12 +64,12 @@ def added():
     tags = request.args.getlist('tag')
     category=request.args.get('category', None)
     data = session['data']
-    event_attributes = build_contentful_data.build_event(data.get_title(),
-                                    start_time=data.get_start_time(),
-                                    end_time=data.get_end_time(),
-                                    description=data.get_description(),
-                                    external_url=data.get_url(),
-                                    location_id=data.get_location(),
+    event_attributes = build_contentful_data.build_event(data.title,
+                                    start_time=data.start_time,
+                                    end_time=data.end_time,
+                                    description=data.description,
+                                    external_url=data.url,
+                                    location_id=data.location_id,
                                     category=category,
                                     tags=tags)
 
