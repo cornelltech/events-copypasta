@@ -74,10 +74,10 @@ def added():
                                         category=category,
                                         tags=tags)
 
-            build_contentful_data.send_to_contentful(event_attributes)
-            return 'Added to contentful!'
+        build_contentful_data.send_to_contentful(event_attributes)
+        return 'Added to contentful!'
 
-        return 'There was some sort of problem with fetching your data.'
+    return 'There was some sort of problem with fetching your data.'
 
 if __name__ == '__main__':
     app.debug = True
