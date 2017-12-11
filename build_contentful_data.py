@@ -1,7 +1,9 @@
 import contentful
 import contentful_management
+import json
 import os
 import pdb
+import requests
 
 from contentful import Client
 from contentful_management import Client
@@ -19,6 +21,20 @@ except Exception as e:
 SPACE_ID = os.environ.get('SPACE_ID', None)
 MGMT_TOKEN = os.environ.get('MANAGEMENT_TOKEN', None)
 ACCESS_TOKEN = os.environ.get('ACCESS_TOKEN', None)
+GOOGLE_GEOCODING_TOKEN = os.environ.get('GOOGLE_GEOCODING_TOKEN', None)
+
+def get_latlong_from_address(address):
+    GOOGLE_GEOCODE_BASE = 'https://maps.googleapis.com/maps/api/geocode/json?key=%s&address=' % GOOGLE_GEOCODING_TOKEN
+    url = GOOGLE_GEOCODE_BASE + address
+    response = requests.get(url)
+
+    json_data = json.loads(response.content)
+    json_latlong = json_data['results'][0]['geometry']['location']
+    lat = float(json_latlong['lat'])
+    lon = float(json_latlong['lng'])
+
+    return (lat, lon)
+
 
 def get_locations():
     delivery_client = contentful.Client(SPACE_ID, ACCESS_TOKEN)
