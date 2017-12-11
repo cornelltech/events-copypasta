@@ -49,7 +49,3 @@ class LocalistSaver():
                 self.location_id = ''
         else:
             raise urllib2.URLError(reason='page does not exist')
-
-if __name__ == '__main__':
-    url = 'http://events.cornell.edu/event/island_immersion_diving_into_discovery_at_shoals_marine_lab'
-    esaver = LocalistSaver(url)

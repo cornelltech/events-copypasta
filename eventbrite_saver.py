@@ -52,8 +52,3 @@ class EventbriteSaver():
         name = response.json()['venue']['name']
         room = response.json()['venue']['address']['localized_address_display']
         self.location_id = build_contentful_data.find_location_id(lat, lon, name, room)
-
-
-if __name__ == '__main__':
-    url = 'https://www.eventbrite.com/e/ckgsb-knowledge-series-event-expanding-asia-opportunities-and-challenges-of-corporate-social-tickets-39089636154'
-    esaver = EventbriteSaver(url)
