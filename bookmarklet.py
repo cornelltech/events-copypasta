@@ -7,6 +7,7 @@ import urllib2
 
 import eventbrite_saver
 import localist_saver
+import meetup_saver
 
 from urlparse import urlparse, urljoin
 
@@ -35,7 +36,8 @@ app.config['SESSION_TYPE'] = 'filesystem'
 Session(app)
 
 URL_HANDLERS = {'www.eventbrite.com' : eventbrite_saver.EventbriteSaver,
-                'events.cornell.edu' : localist_saver.LocalistSaver}
+                'events.cornell.edu' : localist_saver.LocalistSaver,
+                'www.meetup.com' : meetup_saver.MeetupSaver}
 
 @app.route("/")
 def hello():
