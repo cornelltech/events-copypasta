@@ -63,19 +63,21 @@ def add():
 def added():
     tags = request.args.getlist('tag')
     category=request.args.get('category', None)
-    data = session['data']
-    event_attributes = build_contentful_data.build_event(data.title,
-                                    start_time=data.start_time,
-                                    end_time=data.end_time,
-                                    description=data.description,
-                                    external_url=data.url,
-                                    location_id=data.location_id,
-                                    category=category,
-                                    tags=tags)
+    data = session.get('data')
+    if data:
+        event_attributes = build_contentful_data.build_event(data.title,
+                                        start_time=data.start_time,
+                                        end_time=data.end_time,
+                                        description=data.description,
+                                        external_url=data.url,
+                                        location_id=data.location_id,
+                                        category=category,
+                                        tags=tags)
 
-    build_contentful_data.send_to_contentful(event_attributes)
-    return 'Added to contentful!'
+            build_contentful_data.send_to_contentful(event_attributes)
+            return 'Added to contentful!'
 
+        return 'There was some sort of problem with fetching your data.'
 
 if __name__ == '__main__':
     app.debug = True

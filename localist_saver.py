@@ -27,8 +27,8 @@ class LocalistSaver():
 
         self.title = event_content['title']
 
-        # TODO: strip out html
-        self.description = event_content['description']
+        description = event_content['description']
+        self.description = BeautifulSoup(description).get_text()
 
         # TODO: figure out how to deal with a series of events better than this
         # (right now it only inputs the first event in the series)
