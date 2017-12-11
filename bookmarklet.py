@@ -3,6 +3,7 @@ from flask import Flask, render_template, request, session
 from flask_session import Session
 import os
 import requests
+import urllib2
 
 import eventbrite_saver
 import localist_saver
@@ -44,16 +45,19 @@ def hello():
 def add():
     url = request.args.get('url', None)
     if url is None:
-        return 'You didn\'t pass in a url param!'
+        return "You didn't pass in a url param!"
 
     url_details = urlparse(url)
     base_url = url_details.netloc
     if base_url in URL_HANDLERS:
         handler = URL_HANDLERS[base_url]
-        data = handler(url)
-        session['data'] = data
+        try:
+            data = handler(url)
+            session['data'] = data
+        except urllib2.URLError, e:
+            return "Sorry, we can't resolve url %s" % url
     else:
-        return 'This isn\'t a supported page, so we can\'t add it.'
+        return "This isn't a supported page, so we can't add it."
 
     return render_template('add.html',
                             categories=build_contentful_data.get_categories(),
