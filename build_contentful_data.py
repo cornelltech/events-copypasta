@@ -104,7 +104,8 @@ def build_event(title, start_time=None, end_time=None, description=None,
     fields_data.append(build_field('description', description))
     fields_data.append(build_field('externalUrl', external_url))
     fields_data.append(build_field('category', category))
-    fields_data.append({'locationObject': build_location_link(location_id)})
+    if location_id:
+        fields_data.append({'locationObject': build_location_link(location_id)})
 
     tag_links_list = []
     for tag in tags:
