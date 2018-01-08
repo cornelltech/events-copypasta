@@ -32,25 +32,44 @@ class MeetupSaver():
             verify = True,
         )
 
-        self.title = response.json()['name']
-        description = response.json()['description']
-        self.description = BeautifulSoup(description).get_text()
+        # the meetup api just responds with less fields available if they
+        # aren't publicly visible, so we can't rely on the response status_code
+        # to tell us whether we have access
 
-        date = response.json()['local_date']
-        time = response.json()['local_time']
-        timezone = response.json()['utc_offset'] / (60 * 60 * 1000)
-        self.start_time = dateutil.parser.parse('%s %s %d' % (date, time, timezone)).isoformat()
+        response_contents = response.json()
+
+        if 'name' in response_contents:
+            self.title = response.json()['name']
+        else:
+            raise urllib2.URLError(reason='this event is not visible to our application')
+
+        if 'description' in response_contents:
+        # description = response.json()['description']
+            self.description = BeautifulSoup(description).get_text()
+        else:
+            self.description = None
+
+        if ('local_date' in response_contents) \
+            and ('local_time' in response_contents) \
+            and ('utc_offset' in response_contents):
+                date = response_contents['local_date']
+                time = response_contents['local_time']
+                timezone = response_contents['utc_offset'] / (60 * 60 * 1000)
+                self.start_time = dateutil.parser.parse('%s %s %d' % (date, time, timezone)).isoformat()
+        else:
+            self.start_time = None
+
+        # TODO: temporary placeholder for end_time
         self.end_time = None
 
-        lat = float(response.json()['venue']['lat'])
-        lon = float(response.json()['venue']['lon'])
-        name = response.json()['venue']['name']
-        room = response.json()['venue']['address_1']
-        self.location_id = build_contentful_data.find_location_id(lat, lon, name, room)
+        if 'venue' in response_contents:
+            lat = float(response.json()['venue']['lat'])
+            lon = float(response.json()['venue']['lon'])
+            name = response.json()['venue']['name']
+            room = response.json()['venue']['address_1']
+            self.location_id = build_contentful_data.find_location_id(lat, lon, name, room)
+        else:
+            self.location_id = None
 
 if __name__ == '__main__':
     m = MeetupSaver("https://www.meetup.com/Elm-NYC/events/245755712/")
-    print m.title
-    print m.description
-    print m.start_time
-    print m.location_id
