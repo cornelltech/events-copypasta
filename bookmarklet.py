@@ -25,11 +25,6 @@ try:
 except Exception as e:
     print "\nMissing .env file\n"
 
-EVENTBRITE_OAUTH_TOKEN = os.environ.get('EVENTBRITE_OAUTH_TOKEN', None)
-
-EVENTBRITE_API_BASE = 'https://www.eventbriteapi.com/v3/events/'
-EVENTBRITE_URL_BASE = 'https://www.eventbrite.com/e/'
-
 app = Flask(__name__)
 app.secret_key = 'super secret key'
 app.config['SESSION_TYPE'] = 'filesystem'
