@@ -63,7 +63,8 @@ def add():
 
     return render_template('add.html',
                             categories=build_contentful_data.get_categories(),
-                            tags=build_contentful_data.get_tags())
+                            tags=build_contentful_data.get_tags(),
+                            data = session.get('data'))
 
 @app.route("/tag", methods=['GET'])
 def added():
