@@ -56,10 +56,13 @@ def add():
     else:
         return "This isn't a supported page, so we can't add it."
 
+    # send the template only data that actually exists
+    extant_data = {k: v for k,v in vars(data).iteritems() if v is not None}
+    print extant_data
     return render_template('add.html',
                             categories=build_contentful_data.get_categories(),
                             tags=build_contentful_data.get_tags(),
-                            data = session.get('data'))
+                            data = extant_data)
 
 @app.route("/tag", methods=['GET'])
 def added():
