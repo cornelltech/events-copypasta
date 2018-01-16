@@ -39,12 +39,12 @@ class MeetupSaver():
         response_contents = response.json()
 
         if 'name' in response_contents:
-            self.title = response.json()['name']
+            self.title = response_contents['name']
         else:
             raise urllib2.URLError(reason='this event is not visible to our application')
 
         if 'description' in response_contents:
-        # description = response.json()['description']
+            description = response_contents['description']
             self.description = BeautifulSoup(description).get_text()
         else:
             self.description = None
@@ -55,7 +55,7 @@ class MeetupSaver():
                 date = response_contents['local_date']
                 time = response_contents['local_time']
                 timezone = response_contents['utc_offset'] / (60 * 60 * 1000)
-                self.start_time = dateutil.parser.parse('%s %s %d' % (date, time, timezone)).isoformat()
+                self.start_time = dateutil.parser.parse('%s %s %d' % (date, time, timezone))
         else:
             self.start_time = None
 
