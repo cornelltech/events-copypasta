@@ -1,4 +1,6 @@
 import build_contentful_data
+import dateutil
+import json
 import os
 import requests
 
@@ -44,11 +46,14 @@ class EventbriteSaver():
         )
         self.title = response.json()['name']['text']
         self.description = response.json()['description']['text']
-        self.start_time = response.json()['start']['local']
-        self.end_time = response.json()['end']['local']
+        self.start_time = dateutil.parser.parse(response.json()['start']['local'])
+        self.end_time = dateutil.parser.parse(response.json()['end']['local'])
 
         lat = float(response.json()['venue']['address']['latitude'])
         lon = float(response.json()['venue']['address']['longitude'])
         name = response.json()['venue']['name']
         room = response.json()['venue']['address']['localized_address_display']
         self.location_id = build_contentful_data.find_location_id(lat, lon, name, room)
+
+if __name__ == '__main__':
+    print EventbriteSaver("https://www.eventbrite.com/e/build-products-like-its-day-1-every-day-tickets-34700590400").start_time
