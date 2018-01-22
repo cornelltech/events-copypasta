@@ -13,3 +13,27 @@ h2              { font-size: 1.2em; }
   display: flex;
   flex-direction: column;
 }
+
+.new-event-time h2 {
+  display: inline;
+}
+.additional-data h2 {
+  display: inline;
+}
+.categories {
+  padding-bottom: 10px;
+}
+
+.tags-select {
+  padding-bottom: 10px;
+}
+
+.new-event-external-url h2 {
+  display: inline;
+}
+
+/*
+.additional-data {
+  display: flex;
+  flex-direction: row;
+}*/

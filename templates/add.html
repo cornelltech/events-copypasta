@@ -12,7 +12,7 @@
             <h2> {{data.title}} </h2>
           {% endif %}
         </div>
-        <div>
+        <div class="new-event-time">
           {% if data.start_time is defined %}
             <p> {{ data.start_time.strftime('%d %b %Y %-I:%M%p') }} --
           {% endif %}
@@ -25,28 +25,33 @@
             <p> {{data.description}} </p>
           {% endif %}
         </div>
+
+
+      <form action="/tag" method="get">
+        <div class="additional-data">
+          <h2> Category </h2> <div class="categories btn-group" data-toggle="buttons">
+            {% for cat in categories %}
+            <label class="btn btn-default">
+              <input type="radio" name="category" autocomplete="off" value="{{cat}}">{{ cat }}
+            </label>
+            {% endfor %}
+          </div> <!-- /btn-group -->
+          <div class="tags-select">
+            <h2> Tags </h2> <select name="tag"  multiple="multiple" class="js-example-basic-multiple" style="width: 75%"> <!--Supplement an id here instead of using 'name'-->
+              {% for tag in tags %}
+              <option value="{{ tag.title }}">{{ tag.title }}</option>
+              {% endfor %}
+            </select>
+          </div> <!-- /tag-filter-->
+        </div> <!-- additional-data -->
+
         <div class="new-event-external-url">
           {% if data.url is defined %}
-            <p> external url: <a href="{{data.url}}">{{data.url}}</a> </p>
+            <h2> external url:</h2> <a href="{{data.url}}">{{data.url}}</a>
           {% endif %}
         </div>
-      <form action="/tag" method="get">
-        <div class="btn-group" data-toggle="buttons">
-          {% for cat in categories %}
-          <label class="btn btn-default">
-            <input type="radio" name="category" autocomplete="off" value="{{cat}}">{{ cat }}
-          </label>
-          {% endfor %}
-        </div>
-        <div class="tag-filter">
-          <select name="select"  multiple="multiple" class="js-example-basic-multiple"> <!--Supplement an id here instead of using 'name'-->
-            {% for tag in tags %}
-            <option value="{{ tag.title }}">{{ tag.title }}</option>
-            {% endfor %}
-          </select>
-        </div>
 
-        <input type="submit" />
+        <input type="submit" class="btn"/>
       </form>
   </div> <!-- /panel-body -->
 <!-- TODO: you need to handle location-ids somehow... -->
