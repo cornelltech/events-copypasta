@@ -24,7 +24,13 @@
 
 <body>
   <div class="app-container">
-    {% block content %} {% endblock content %}
+    <div class="container">
+      <div class="content-container">
+        <div class="extracted-content panel panel-default">
+          {% block content %} {% endblock content %}
+        </div> <!-- /extracted-content -->
+      </div> <!-- /content-container -->
+    </div> <!-- /container -->
   </div> <!-- /container -->
 
   <script>
