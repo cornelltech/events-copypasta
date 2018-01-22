@@ -1,5 +1,6 @@
 import contentful
 import contentful_management
+import datetime
 import json
 import os
 import pdb
@@ -98,13 +99,15 @@ def build_location(lat, lon, name, room):
 def build_event(title, start_time=None, end_time=None, description=None,
                 external_url=None, location_id=None, category=None, tags=None):
     fields_data = []
+    date_format = "%Y-%m-%dT%H:%M:%S"
     fields_data.append(build_field('eventTitle', title))
-    fields_data.append(build_field('startTime', start_time))
-    fields_data.append(build_field('endTime', end_time))
+    fields_data.append(build_field('startTime', datetime.datetime.strftime(start_time, date_format)))
+    fields_data.append(build_field('endTime', datetime.datetime.strftime(end_time, date_format)))
     fields_data.append(build_field('description', description))
     fields_data.append(build_field('externalUrl', external_url))
     fields_data.append(build_field('category', category))
-    fields_data.append({'locationObject': build_location_link(location_id)})
+    if location_id:
+        fields_data.append({'locationObject': build_location_link(location_id)})
 
     tag_links_list = []
     for tag in tags:

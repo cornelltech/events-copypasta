@@ -7,6 +7,7 @@ import urllib2
 
 import eventbrite_saver
 import localist_saver
+import meetup_saver
 
 from urlparse import urlparse, urljoin
 
@@ -24,28 +25,27 @@ try:
 except Exception as e:
     print "\nMissing .env file\n"
 
-EVENTBRITE_OAUTH_TOKEN = os.environ.get('EVENTBRITE_OAUTH_TOKEN', None)
-
-EVENTBRITE_API_BASE = 'https://www.eventbriteapi.com/v3/events/'
-EVENTBRITE_URL_BASE = 'https://www.eventbrite.com/e/'
-
 app = Flask(__name__)
 app.secret_key = 'super secret key'
 app.config['SESSION_TYPE'] = 'filesystem'
 Session(app)
 
 URL_HANDLERS = {'www.eventbrite.com' : eventbrite_saver.EventbriteSaver,
-                'events.cornell.edu' : localist_saver.LocalistSaver}
+                'events.cornell.edu' : localist_saver.LocalistSaver,
+                'www.meetup.com' : meetup_saver.MeetupSaver}
 
 @app.route("/")
 def hello():
-    return 'hi hello whats up'
+    return render_template('msg.html',
+                            msg='Hello!',
+                            details='hi hello whats up')
 
 @app.route("/add")
 def add():
     url = request.args.get('url', None)
     if url is None:
-        return "You didn't pass in a url param!"
+        return render_template('error.html',
+                                details="You didn't pass in a url param!")
 
     url_details = urlparse(url)
     base_url = url_details.netloc
@@ -55,13 +55,20 @@ def add():
             data = handler(url)
             session['data'] = data
         except urllib2.URLError, e:
-            return "Sorry, we can't resolve url %s" % url
+            return render_template('error.html',
+                                    details="Sorry, we can't resolve url",
+                                    url=url)
     else:
-        return "This isn't a supported page, so we can't add it."
+        return render_template('error.html',
+                                details="This isn't a supported page, so we can't add it.")
 
+    # send the template only data that actually exists
+    extant_data = {k: v for k,v in vars(data).iteritems() if v is not None}
+    print extant_data
     return render_template('add.html',
                             categories=build_contentful_data.get_categories(),
-                            tags=build_contentful_data.get_tags())
+                            tags=build_contentful_data.get_tags(),
+                            data = extant_data)
 
 @app.route("/tag", methods=['GET'])
 def added():
@@ -79,9 +86,13 @@ def added():
                                         tags=tags)
 
         build_contentful_data.send_to_contentful(event_attributes)
-        return 'Added to contentful!'
+        return render_template('msg.html',
+                                msg='Success!',
+                                details='Your event has been added to the database.')
 
-    return 'There was some sort of problem with fetching your data.'
+    return render_template('msg.html',
+                            msg='Error',
+                            details='There was some sort of problem with fetching your data.')
 
 if __name__ == '__main__':
     app.debug = True

@@ -1,4 +1,5 @@
 import build_contentful_data
+import dateutil
 import json
 import requests
 import urllib2
@@ -36,8 +37,8 @@ class LocalistSaver():
             # (right now it only inputs the first event in the series)
             series = event_content['event_instances']
             first_event = series[0]['event_instance']
-            self.start_time = first_event['start']
-            self.end_time = first_event['end']
+            self.start_time = dateutil.parser.parse(first_event['start'])
+            self.end_time = dateutil.parser.parse(first_event['end'])
 
             # location
             address = event_content['location']
@@ -46,6 +47,9 @@ class LocalistSaver():
                 (lat, lon) = build_contentful_data.get_latlong_from_address(address)
                 self.location_id = build_contentful_data.find_location_id(lat, lon, address, room)
             else:
-                self.location_id = ''
+                self.location_id = None
         else:
             raise urllib2.URLError(reason='page does not exist')
+
+if __name__ == '__main__':
+    local = LocalistSaver("http://events.cornell.edu/event/the_martin_luther_king_jr_day_of_commemoration_featuring_keynote_speaker_mitchell_s_jackson")

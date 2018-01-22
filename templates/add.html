@@ -1,25 +1,56 @@
-<!-- base.html -->
+<!-- add.html -->
+{% extends "base.html" %}
 
-<!DOCTYPE html>
-<html lang="en">
+{% block content %}
+  <h1 class="panel-heading">Your event:</h1>
+  <div class="panel-body">
+    <div class="new-event-title">
+      {% if data.title is defined %}
+        <h2> {{data.title}} </h2>
+      {% endif %}
+    </div>
+    <div class="new-event-time">
+      {% if data.start_time is defined %}
+        <p> {{ data.start_time.strftime('%d %b %Y %-I:%M%p') }} --
+      {% endif %}
+      {% if data.end_time is defined %}
+        {{ data.end_time.strftime('%-I:%M%p') }} </p>
+      {% endif %}
+    </div>
+    <div class="new-event-description">
+      {% if data.description is defined %}
+        <p> {{data.description}} </p>
+      {% endif %}
+    </div>
 
-<head>
-  <title>categories &amp; tags for your event</title>
-  <!-- Bootstrap core CSS -->
-  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
-  <link href="{{url_for('static', filename='style.css')}}" rel="stylesheet">
-</head>
+    <form action="/tag" method="get">
+      <div class="additional-data">
+        <h2> Category </h2>
+        <div class="categories btn-group" data-toggle="buttons">
+          {% for cat in categories %}
+            <label class="btn btn-default">
+              <input type="radio" name="category" autocomplete="off" value="{{cat}}">{{ cat }}
+            </label>
+          {% endfor %}
+        </div> <!-- /categories -->
+        <div class="tags-select">
+          <h2> Tags </h2>
+          <select name="tag"  multiple="multiple" class="js-example-basic-multiple" style="width: 75%"> <!--Supplement an id here instead of using 'name'-->
+            {% for tag in tags %}
+              <option value="{{ tag.title }}">{{ tag.title }}</option>
+            {% endfor %}
+          </select>
+        </div> <!-- /tags-select-->
+      </div> <!-- additional-data -->
 
-<body>
-  <h1>Choose categories &amp; tags for your event.</h1>
-  <form action="/tag" method="get">
-    Category: <br> {% for cat in categories %}
-    <input type="radio" name="category" value={{cat}}>{{ cat }} <br>{% endfor %}
-    <br> Tags: <br> {% for tag in tags %}
-    <input type="checkbox" name="tag" value={{tag.title}}>{{ tag.title }}
-    <br> {% endfor %}
-    <input type="submit" />
-  </form>
-</body>
+      <div class="new-event-external-url">
+        {% if data.url is defined %}
+          <h2> external url:</h2> <a href="{{data.url}}">{{data.url}}</a>
+        {% endif %}
+      </div> <!--/new-event-external-url -->
 
-</html>
+      <input type="submit" class="btn"/>
+    </form>
+  </div> <!-- /panel-body -->
+<!-- TODO: you need to handle location-ids somehow... -->
+{% endblock content %}

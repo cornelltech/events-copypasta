@@ -1,0 +1,46 @@
+<!-- base.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+  <title>Cornell Tech Saves Events</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+  <!-- Bootstrap core CSS -->
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" >
+  {% block style %}
+  <!--App CSS-->
+  <link href="{{url_for('static', filename='style.css')}}" rel="stylesheet">
+  {% endblock %}
+
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+
+</head>
+
+<body>
+  <div class="app-container">
+    <div class="container">
+      <div class="content-container">
+        <div class="extracted-content panel panel-default">
+          {% block content %} {% endblock content %}
+        </div> <!-- /extracted-content -->
+      </div> <!-- /content-container -->
+    </div> <!-- /container -->
+  </div> <!-- /container -->
+
+  <script>
+    $(document).ready(function() {
+      $('.js-example-basic-multiple').select2();
+    });
+  </script>
+
+
+</body>
+
+
+</html>
