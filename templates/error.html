@@ -1,0 +1,12 @@
+<!-- error.html -->
+{% extends "base.html" %}
+
+{% block content %}
+  <h1 class="panel-heading"> <span class="glyphicon glyphicon-remove"></span> Error</h1>
+  <div class="panel-body">
+    {{ details }}
+    {% if url is defined %}
+      <a href="{{url}}">{{url}}</a>
+    {% endif %}
+  </div> <!--/panel-body-->
+{% endblock %}
